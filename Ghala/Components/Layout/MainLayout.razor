@@ -1,0 +1,161 @@
+﻿@inherits LayoutComponentBase
+
+@inject NavigationManager NavigationManager
+@inject AuthTokenManager AuthTokenManager
+@inject UserProfileManager UserProfileManager
+@inject ThemeService ThemeService
+@inject TooltipService TooltipService
+
+
+
+<RadzenComponents />
+
+<RadzenLayout Style="grid-template-columns: auto 1fr auto; grid-template-areas: 'rz-header rz-header rz-header' 'rz-sidebar rz-body rz-config-sidebar'">
+    <RadzenHeader>
+        <ChildContent>
+            <RadzenRow AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0px">
+                <RadzenColumn Size="5">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+
+                        <span style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">Ghala</span>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="7">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                        <div class="rz-display-none rz-display-sm-inline-flex align-items-center">
+                            @* <RadzenLink Path="https://ghala.boie.de/#" Text="Radzen" title="Create .NET Core web applications fast & easy" class="rz-text-nowrap rz-mx-2 rz-mx-lg-4" target="_blank" /> *@
+                            @if (AuthTokenManager.IsAuthenticated)
+                            {
+                                <RadzenLabel Text="@($"Automatische Abmeldung in {TokenLifetime}")" class="rz-text-nowrap rz-mx-2 rz-mx-lg-4" />
+
+                                <RadzenProfileMenu>
+                                    <Template>
+                                        <RadzenGravatar Email="@AuthTokenManager.Email" />
+                                    </Template>
+                                    <ChildContent>
+                                        <RadzenProfileMenuItem Text="Einstellungen" Path="/settings" Icon="settings" />
+                                        <RadzenProfileMenuItem Text="Abmelden" Path="/out" Icon="logout" />
+                                    </ChildContent>
+                                </RadzenProfileMenu>
+                            }
+                            else
+                            {
+                                <RadzenLink Text="Anmelden" class="text-nowrap rz-mx-2 rz-mx-lg-4" Path="/auth" />
+                            }
+
+                        </div>
+
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        </ChildContent>
+    </RadzenHeader>
+    <RadzenSidebar @ref="sidebar0" @bind-Expanded="@sidebarExpanded" style="display: flex; flex-direction: column">
+        <RadzenPanelMenu Match="NavLinkMatch.Prefix" Multiple="true">
+            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard">
+                <RadzenPanelMenuItem Text="Status" Path="dashboard/status" Icon="article"></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Kommi-Zone" Path="dashboard/picking-zone" Icon="article"></RadzenPanelMenuItem>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Versand" Icon="article">
+                <RadzenPanelMenuItem Text="Versand Heute" Path="logistic/ship-same-day" Icon="article"></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Abholung" Path="logistic/customer-pickup" Icon="article"></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Tour" Path="logistic/delivery-route" Icon="article"></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Text="Scopes" Path="xauth/scopes" Icon="article"></RadzenPanelMenuItem>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Explorer" Icon="article">
+                <RadzenPanelMenuItem Text="LaHi Status" Path="explorer/picking-bin-status" Icon="tab"></RadzenPanelMenuItem>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Tools" Icon="article">
+                <RadzenPanelMenuItem Text="RG Prüfung" Path="tools/invoice-verification"></RadzenPanelMenuItem>
+            </RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+
+    <RadzenBody @ref="@body0">
+        <RadzenContentContainer Name="main">
+            <ChildContent>
+                <RadzenContentContainer Name="main">
+                    <RadzenRow Gap="2rem" class="rz-pt-6 rz-px-4 rz-px-sm-8 rz-px-xl-12">
+                        <RadzenColumn Size="12">
+                            <RadzenRow class="rz-mx-auto" Style="max-width: 1600px;">
+                                <RadzenColumn Size="12">
+                                    @Body
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenContentContainer>
+            </ChildContent>
+        </RadzenContentContainer>
+    </RadzenBody>
+</RadzenLayout>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    RadzenSidebar sidebar0 = null!;
+    RadzenBody body0 = null!;
+
+    string TokenLifetime = "";
+    bool Invalidated = false;
+
+    bool sidebarExpanded = true;
+
+    bool rendered;
+
+    private Timer? RefreshTimer;
+
+    public async Task TimerTickAsync()
+    {
+        string NewRemain = AuthTokenManager.AuthTokenLifetime.ToString(@"mm\:ss");
+        if (TokenLifetime != NewRemain)
+        {
+            TokenLifetime = NewRemain;
+
+            await InvokeAsync(() => StateHasChanged());
+        }
+
+        if (AuthTokenManager.IsAuthTokenExpired)
+        {
+            if (!Invalidated)
+            {
+                UserProfileManager.ClearProfile();
+                AuthTokenManager.RevokeAuthToken();
+
+                Invalidated = true;
+            }
+        }
+    }
+
+    private bool _isInternalInitialized = false;
+    protected override void OnInitialized()
+    {
+        if (!_isInternalInitialized)
+        {
+            if (AuthTokenManager.IsAuthenticated)
+            {
+                RefreshTimer = new Timer(new TimerCallback(async _ => await TimerTickAsync()), null, 500, 500);
+            }
+
+            _isInternalInitialized = true;
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            rendered = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        RefreshTimer?.Dispose();
+    }
+}

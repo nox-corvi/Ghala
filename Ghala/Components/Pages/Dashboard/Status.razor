@@ -1,0 +1,551 @@
+﻿@page "/dashboard/status"
+@implements IDisposable
+
+@inject IConfiguration Configuration
+@inject ILogger<Status> Logger
+
+@rendermode InteractiveServer
+
+@using Nox
+@using Nox.Web.Components
+@using Nox.Web.Controls
+@using Nox.WebApi
+@using Radzen
+@using Radzen.Blazor
+
+<LoadingIndicator @ref="loadingIndicator" />
+
+<PageTitle>Status</PageTitle>
+
+@* <h1>Status</h1>
+ *@
+<div>Daten von @LastRefresh</div>
+
+<RadzenStack Orientation="Orientation.Vertical" Wrap="FlexWrap.NoWrap">
+    <RadzenStack AlignItems="AlignItems.Start">
+        <table class="status">
+            <thead>
+                <tr>
+                    <td>Aufträge</td>
+                    <td></td>
+                    <td>Pos</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tr>
+                <td class="head">@ERPReleasedHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPReleasedPos</td>
+                <td class="description">freigegeben</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPNewTotalHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPNewTotalPos</td>
+                <td class="description">neu (Total)</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPNewBackLogHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPNewBackLogPos</td>
+                <td class="description">  # im Rückstand</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPNewTodayHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPNewTodayPos</td>
+                <td class="description">  # Freigabe HEUTE fällig</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPNewTomorrowHead</td>
+                <td>/</td>
+                <td class="pos">@ERPNewTomorrowPos</td>
+                <td class="description">  # Freigabe MORGEN fällig</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPNewFutureHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPNewFuturePos</td>
+                <td class="description">  # Freigabe ÜBERMORGEN / SPÄTER fällig</td>
+            </tr>
+            <tr>
+                <td class="head">@ERPInProgressHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPInProgressPos</td>
+                <td class="description">in Bearbeitung</td>
+            </tr>
+            <tr class="done">
+                <td class="head">@ERPOrdersDoneHead</td>
+                <td class="">/</td>
+                <td class="pos">@ERPOrdersDonePos</td>
+                <td class="description">fertig</td>
+            </tr>
+        </table>
+    </RadzenStack>
+    <RadzenStack AlignItems="AlignItems.Start">
+        <table class="status">
+            <thead>
+                <tr>
+                    <td>Aufträge</td>
+                    <td></td>
+                    <td>Pos</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tr>
+                <td class="head">@POTotalHead</td>
+                <td class="">/</td>
+                <td class="pos">@POTotalPos</td>
+                <td class="description">in Bearbeitung (Total)</td>
+            </tr>
+            <tr>
+                <td class=""></td>
+                <td class=""></td>
+                <td class="pos">@POOpenPos</td>
+                <td class="description">  # noch OFFEN</td>
+            </tr>
+            <tr>
+                <td class=""></td>
+                <td class=""></td>
+                <td class="pos">@POrfsPos</td>
+                <td class="description">  # versandfertig</td>
+            </tr>
+            <tr class="done">
+                <td class="head">@PODoneHead</td>
+                <td class=""></td>
+                <td class="pos">@PODonePos</td>
+                <td class="description">fertig</td>
+            </tr>
+        </table>
+    </RadzenStack>
+    <RadzenStack AlignItems="AlignItems.Start">
+        <table class="status">
+            <thead>
+                <tr>
+                    <td>Aufträge</td>
+                    <td></td>
+                    <td>Pos</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tr>
+                <td class="head">@P_ERPOrdersDoneHead[0]</td>
+                <td class="">/</td>
+                <td class="pos">@P_ERPOrdersDonePos[0]</td>
+                <td class="description">@P_ERPOrdersDone[0]</td>
+            </tr>
+            <tr>
+                <td class="head">@P_ERPOrdersDoneHead[1]</td>
+                <td class="">/</td>
+                <td class="pos">@P_ERPOrdersDonePos[1]</td>
+                <td class="description">@P_ERPOrdersDone[1]</td>
+            </tr>
+            <tr>
+                <td class="head">@P_ERPOrdersDoneHead[2]</td>
+                <td class="">/</td>
+                <td class="pos">@P_ERPOrdersDonePos[2]</td>
+                <td class="description">@P_ERPOrdersDone[2]</td>
+            </tr>
+            <tr>
+                <td class="head">@P_ERPOrdersDoneHead[3]</td>
+                <td class="">/</td>
+                <td class="pos">@P_ERPOrdersDonePos[3]</td>
+                <td class="description">@P_ERPOrdersDone[3]</td>
+            </tr>
+            <tr>
+                <td class="head">@P_ERPOrdersDoneHead[4]</td>
+                <td class="">/</td>
+                <td class="pos">@P_ERPOrdersDonePos[4]</td>
+                <td class="description">@P_ERPOrdersDone[4]</td>
+            </tr>
+        </table>
+    </RadzenStack>
+</RadzenStack>
+
+@* <div class="status">
+    <p>
+        <GroupBox title="ERP-Aufträge">
+            <table class="status">
+                <thead>
+                    <tr>
+                        <td>Aufträge</td>
+                        <td></td>
+                        <td>Pos</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tr>
+                    <td class="head">@ERPReleasedHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPReleasedPos</td>
+                    <td class="description">freigegeben</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPNewTotalHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPNewTotalPos</td>
+                    <td class="description">neu (Total)</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPNewBackLogHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPNewBackLogPos</td>
+                    <td class="description">  # im Rückstand</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPNewTodayHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPNewTodayPos</td>
+                    <td class="description">  # Freigabe HEUTE fällig</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPNewTomorrowHead</td>
+                    <td>/</td>
+                    <td class="pos">@ERPNewTomorrowPos</td>
+                    <td class="description">  # Freigabe MORGEN fällig</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPNewFutureHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPNewFuturePos</td>
+                    <td class="description">  # Freigabe ÜBERMORGEN / SPÄTER fällig</td>
+                </tr>
+                <tr>
+                    <td class="head">@ERPInProgressHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPInProgressPos</td>
+                    <td class="description">in Bearbeitung</td>
+                </tr>
+                <tr class="done">
+                    <td class="head">@ERPOrdersDoneHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@ERPOrdersDonePos</td>
+                    <td class="description">fertig</td>
+                </tr>
+            </table>
+        </GroupBox>
+    </p>
+    <p>
+        <GroupBox title="Kommissionier-Aufträge">
+            <table class="status">
+                <thead>
+                    <tr>
+                        <td>Aufträge</td>
+                        <td></td>
+                        <td>Pos</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tr>
+                    <td class="head">@POTotalHead</td>
+                    <td class="">/</td>
+                    <td class="pos">@POTotalPos</td>
+                    <td class="description">in Bearbeitung (Total)</td>
+                </tr>
+                <tr>
+                    <td class=""></td>
+                    <td class=""></td>
+                    <td class="pos">@POOpenPos</td>
+                    <td class="description">  # noch OFFEN</td>
+                </tr>
+                <tr>
+                    <td class=""></td>
+                    <td class=""></td>
+                    <td class="pos">@POrfsPos</td>
+                    <td class="description">  # versandfertig</td>
+                </tr>
+                <tr class="done">
+                    <td class="head">@PODoneHead</td>
+                    <td class=""></td>
+                    <td class="pos">@PODonePos</td>
+                    <td class="description">fertig</td>
+                </tr>
+            </table>
+        </GroupBox>
+    </p>
+    <p>
+        <GroupBox title="Rückblick Versand">
+            <table class="status">
+                <thead>
+                    <tr>
+                        <td>Aufträge</td>
+                        <td></td>
+                        <td>Pos</td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tr>
+                    <td class="head">@P_ERPOrdersDoneHead[0]</td>
+                    <td class="">/</td>
+                    <td class="pos">@P_ERPOrdersDonePos[0]</td>
+                    <td class="description">@P_ERPOrdersDone[0]</td>
+                </tr>
+                <tr>
+                    <td class="head">@P_ERPOrdersDoneHead[1]</td>
+                    <td class="">/</td>
+                    <td class="pos">@P_ERPOrdersDonePos[1]</td>
+                    <td class="description">@P_ERPOrdersDone[1]</td>
+                </tr>
+                <tr>
+                    <td class="head">@P_ERPOrdersDoneHead[2]</td>
+                    <td class="">/</td>
+                    <td class="pos">@P_ERPOrdersDonePos[2]</td>
+                    <td class="description">@P_ERPOrdersDone[2]</td>
+                </tr>
+                <tr>
+                    <td class="head">@P_ERPOrdersDoneHead[3]</td>
+                    <td class="">/</td>
+                    <td class="pos">@P_ERPOrdersDonePos[3]</td>
+                    <td class="description">@P_ERPOrdersDone[3]</td>
+                </tr>
+                <tr>
+                    <td class="head">@P_ERPOrdersDoneHead[4]</td>
+                    <td class="">/</td>
+                    <td class="pos">@P_ERPOrdersDonePos[4]</td>
+                    <td class="description">@P_ERPOrdersDone[4]</td>
+                </tr>
+            </table>
+        </GroupBox>
+    </p>
+</div> *@
+<div>Aktualisierung in @(StatusRefreshRemain == int.MinValue ? " ... " : StatusRefreshRemain.ToString())</div>
+<div>@LastError</div>
+
+<RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Aktualisieren" Click="@(args => NextRefresh = DateTime.Now)" />
+
+@code {
+    private LoadingIndicator loadingIndicator = null!;
+
+    private DateTime CurrentDate = DateTime.Now;
+    private DateTime LastRefresh = DateTime.Now;
+    private DateTime NextRefresh = DateTime.MaxValue;
+
+    private int StatusRefreshCounter = 30;
+    private int StatusRefreshRemain = 0;
+
+    private int ERPReleasedHead, ERPReleasedPos,
+        ERPNewTotalHead, ERPNewTotalPos,
+        ERPNewBackLogHead, ERPNewBackLogPos,
+        ERPNewTodayHead, ERPNewTodayPos,
+        ERPNewTomorrowHead, ERPNewTomorrowPos,
+        ERPNewFutureHead, ERPNewFuturePos,
+        ERPInProgressHead, ERPInProgressPos,
+        ERPOrdersDoneHead, ERPOrdersDonePos;
+
+    private int POTotalHead, POTotalPos, POOpenPos, POrfsPos,
+        PODoneHead, PODonePos;
+
+    private int[] P_ERPOrdersDoneHead = [0, 0, 0, 0, 0];
+    private int[] P_ERPOrdersDonePos = [0, 0, 0, 0, 0];
+
+    private string[] P_ERPOrdersDone = ["", "", "", "", ""];
+
+    private string LastError = "";
+
+    private Timer? RefreshTimer;
+
+    private async Task ReloadDataAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            loadingIndicator.Show();
+
+            Logger.LogInformation($"{nameof(ReloadDataAsync)}@{DateTime.Now}");
+
+            var StatusInstance = new MotisDataPool.Data.Status(Configuration, Logger);
+
+            Logger.LogShell(await Shell.SuccessAndHandlerAsync(
+                async () => await Shell.SuccessHandlerAsync(await StatusInstance.CountReleasedERPOrdersAsync(CurrentDate), (shell) =>
+                {
+                    var ERPReleased = shell.First();
+
+                    ERPReleasedHead = ERPReleased.CH;
+                    ERPReleasedPos = ERPReleased.CP;
+
+                    return Task.FromResult(shell);
+                }),
+                async () => await Shell.SuccessHandlerAsync(await StatusInstance.CountNewERPOrdersAsync(CurrentDate), (shell) =>
+                {
+                    var ERPNewTotal = shell.Data.Sum(f => f.CH);
+                    ERPNewTotalHead = shell.Data.Sum(f => f.CH);
+                    ERPNewTotalPos = shell.Data.Sum(f => f.CP);
+                    //Invoke(() => SetLabel(ERPNewTotalHead, shell.Data.Sum(f => f.CH)));
+                    //Invoke(() => SetLabel(ERPNewTotalPos, shell.Data.Sum(f => f.CP)));
+
+                    var ERPNewBackLog = shell.Data.Where(f => f.D.Equals("BACKLOG")).First();
+                    ERPNewBackLogHead = ERPNewBackLog.CH;
+                    ERPNewBackLogPos = ERPNewBackLog.CP;
+                    //Invoke(() => SetLabel(ERPNewBackLogHead, ERPNewBackLog.CH));
+                    //Invoke(() => SetLabel(ERPNewBackLogPos, ERPNewBackLog.CP));
+
+                    var ERPNewToday = shell.Data.Where(f => f.D.Equals("TODAY")).First();
+                    ERPNewTodayHead = ERPNewToday.CH;
+                    ERPNewTodayPos = ERPNewToday.CP;
+                    //Invoke(() => SetLabel(ERPNewTodayHead, ERPNewToday.CH));
+                    //Invoke(() => SetLabel(ERPNewTodayPos, ERPNewToday.CP));
+
+                    var ERPNewTomorrow = shell.Data.Where(f => f.D.Equals("TOMORROW")).First();
+                    ERPNewTomorrowHead = ERPNewTomorrow.CH;
+                    ERPNewTomorrowPos = ERPNewTomorrow.CP;
+                    //Invoke(() => SetLabel(ERPNewTomorrowHead, ERPNewTomorrow.CH));
+                    //Invoke(() => SetLabel(ERPNewTomorrowPos, ERPNewTomorrow.CP));
+
+                    var ERPNewFuture = shell.Data.Where(f => f.D.Equals("FUTURE")).First();
+                    ERPNewFutureHead = ERPNewFuture.CH;
+                    ERPNewFuturePos = ERPNewFuture.CP;
+                    //Invoke(() => SetLabel(ERPNewFutureHead, ERPNewFuture.CH));
+                    //Invoke(() => SetLabel(ERPNewFuturePos, ERPNewFuture.CP));
+
+                    return Task.FromResult(shell);
+                }),
+                async () => await Shell.SuccessHandlerAsync(await StatusInstance.CountERPOrdersInProgressAsync(), (shell) =>
+                {
+                    var ERPInProgress = shell.First();
+                    //Invoke((Delegate)(() => SetLabel(ERPInProgressHead, ERPInProgress.CH)));
+                    //Invoke((Delegate)(() => SetLabel(ERPInProgressPos, ERPInProgress.CP)));
+                    ERPInProgressHead = ERPInProgress.CH;
+                    ERPInProgressPos = ERPInProgress.CP;
+
+                    return Task.FromResult(shell);
+                }),
+                async () => await Shell.SuccessHandlerAsync(await StatusInstance.CountERPOrdersDoneAsync(CurrentDate), (shell) =>
+                {
+                    var ERPOrdersDone = shell.First();
+                    //Invoke((Delegate)(() => SetLabel(ERPOrdersDoneHead, ERPOrdersDone.CH)));
+                    //Invoke((Delegate)(() => SetLabel(ERPOrdersDonePos, ERPOrdersDone.CP)));
+                    ERPOrdersDoneHead = ERPOrdersDone.CH;
+                    ERPOrdersDonePos = ERPOrdersDone.CP;
+
+                    return Task.FromResult(shell);
+                }),
+                // Kommi
+                async () => await Shell.SuccessHandlerAsync(await
+                    StatusInstance.CountPickOrdersInProgressAsync(), (shell) =>
+                {
+                    var POTotal = shell.Data.Where(f => f.D.Equals("TOTAL")).First();
+                    //Invoke(() => SetLabel(POTotalHead, POTotal.CH));
+                    //Invoke(() => SetLabel(POTotalPos, POTotal.CP));
+                    POTotalHead = POTotal.CH;
+                    POTotalPos = POTotal.CP;
+
+                    var POOpen = shell.Data.Where(f => f.D.Equals("OPEN")).First();
+                    //Invoke(() => SetLabel(POOpenPos, POOpen.CP));
+                    POOpenPos = POOpen.CP;
+
+                    var POrfs = shell.Data.Where(f => f.D.Equals("READY FOR SHIPPING")).First();
+                    //Invoke(() => SetLabel(POrfsPos, POrfs.CP));
+                    POrfsPos = POrfs.CP;
+
+                    return Task.FromResult(shell);
+                }),
+
+                async () => await Shell.SuccessHandlerAsync(await
+                    StatusInstance.CountPickOrdersDoneAsync(CurrentDate), (shell) =>
+                {
+                    var PODone = shell.First();
+                    //Invoke((Delegate)(() => SetLabel(PODoneHead, PODone.CH)));
+                    //Invoke((Delegate)(() => SetLabel(PODonePos, PODone.CP)));
+                    PODoneHead = PODone.CH;
+                    PODonePos = PODone.CP;
+
+                    return Task.FromResult(shell);
+                }),
+                async () => await Shell.ForHandlerAsync<Shell<MotisDataDef.Status>>(0, 5, async (i) =>
+                {
+                    // LBD
+                    var LastBusinessDay = CurrentDate;
+
+                    LastBusinessDay = LastBusinessDay.AddDays(-1);
+                    if (LastBusinessDay.DayOfWeek == DayOfWeek.Sunday)
+                        LastBusinessDay = LastBusinessDay.AddDays(-2);
+
+                    return await Shell.SuccessHandlerAsync(
+                        await StatusInstance.CountERPOrdersDoneAsync(LastBusinessDay), (shell) =>
+                        {
+                            var ERPOrdersDone = shell.First();
+
+                            P_ERPOrdersDoneHead[i] = ERPOrdersDone.CH;
+                            P_ERPOrdersDonePos[i] = ERPOrdersDone.CP;
+
+                            P_ERPOrdersDone[i] = $"{LastBusinessDay.ToShortDateString()}";
+
+                            return Task.FromResult(shell);
+                        });
+                })), 
+                $"{nameof(ReloadDataAsync)}");
+
+            LastRefresh = DateTime.Now;
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+        catch (TaskCanceledException)
+        {
+
+        }
+        catch (Exception e)
+        {
+            Logger.LogException(e, this.ToString());
+    }
+        finally
+        {
+            loadingIndicator.Hide();
+        }
+    }
+
+    private bool _LoadInProgress = false;
+    public async Task TimerTickAsync()
+    {
+        var Difference = (int)(NextRefresh - DateTime.Now).TotalSeconds;
+        if ((Difference <= 0) && (!_LoadInProgress))
+        {
+            _LoadInProgress = true;
+            try
+            {
+                var cts = new CancellationTokenSource();
+                await ReloadDataAsync(cts.Token);
+
+                NextRefresh = DateTime.Now + TimeSpan.FromSeconds(StatusRefreshCounter);
+                Difference = StatusRefreshCounter;
+            }
+            finally
+            {
+                _LoadInProgress = false;
+            }
+        }
+
+        StatusRefreshRemain = Difference;
+        await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+    }
+
+    private bool _isInternalInitialized = false;
+
+    protected override async void OnInitialized()
+    {
+        await base.OnInitializedAsync();
+
+        if (!_isInternalInitialized)
+        {
+            var Option = new GhalaDataPool.GhalaOption(Configuration, Logger);
+            var OptionItem = await Option.GetOptionAsync("STATUS REFRESH COUNTER");
+
+            if (OptionItem.State == StateEnum.Success)
+                if (int.TryParse(OptionItem.First().Data, out int ParsedValue))
+                    StatusRefreshCounter = ParsedValue;
+
+            RefreshTimer = new Timer(new TimerCallback(async _ => await TimerTickAsync()), null, 500, 500);
+
+            _isInternalInitialized = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        RefreshTimer?.Dispose();
+    }
+
+}

@@ -1,0 +1,23 @@
+﻿.search-container {
+    margin-right: auto;
+    margin-left: 0; /* Ignoriert jede linksseitige automatische Margin-Einstellung */   
+}
+
+    .search-container input[type="text"] {
+        width: calc(40ch + 10px); /* ch is the width of the character '0' */
+        padding: 8px;
+        margin-right: 4px;
+        box-sizing: border-box;
+    }
+
+    .search-container button {
+        padding: 8px 16px; /* ch is the width of the character '0' */
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+.search-container button:hover {
+    background-color: #0056b3;
+}

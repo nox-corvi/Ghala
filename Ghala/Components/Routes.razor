@@ -1,0 +1,20 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Ghala.Components.Layout
+
+@inject NavigationManager NavigationManager
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+    </Found> 
+    <NotFound>
+        <LayoutView Layout="typeof(MainLayout)">
+            <RadzenText TextStyle="TextStyle.DisplayH1" TagName="TagName.H1" class="rz-my-12">
+                Page not found
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.DisplayH5" class="rz-my-12">
+                Sorry, but there's nothing here!
+            </RadzenText>
+        </LayoutView>
+    </NotFound>
+</Router>

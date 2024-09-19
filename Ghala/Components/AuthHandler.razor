@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Nox.WebApi;
+@using Radzen;
+@using Radzen.Blazor;
+
+@rendermode InteractiveServer
+
+@inject AuthTokenManager AuthTokenManager
+@inject NavigationManager NavigationManager
+
+<div class="top-row px-4">
+    @if (AuthTokenManager.IsAuthenticated)
+    {
+        <div style="centered-div"><span style="pe-2">Willkommen @AuthTokenManager.Email</span>&nbsp;<RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Abmelden" Click="@(args => Logout())" /></div>
+    }
+    else
+    {
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Anmelden" Click="@(args => Login())" />
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private void Login()
+    {
+        NavigationManager.NavigateTo("/auth");
+    }
+
+    private void Logout()
+    {
+        var Result = AuthTokenManager.RevokeAuthToken();
+
+        if (Result.State == StateEnum.Success)
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+    }
+}

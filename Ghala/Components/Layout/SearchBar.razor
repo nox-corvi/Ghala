@@ -1,0 +1,118 @@
+﻿@inject NavigationManager navigationManager
+
+@implements IDisposable
+@rendermode InteractiveServer
+
+@namespace Nox.Web.Controls
+
+@using Microsoft.AspNetCore.Components.Web
+@using System.Text.RegularExpressions
+@using System.Text
+
+@* <UseBackButton OnBack="OnBack" @bind-OnClickHandler="BackButtonClickHandler" /> *@
+
+<div class="search-container">
+    <input type="text" @bind="SearchTerm" size="@Size" @bind:event="oninput" placeholder="Suchbegriff eingeben..." @onkeydown="HandleKeyDown" />
+    <button @onclick="OnSearchClicked">Suche</button>
+</div>
+
+@code {
+    //protected Func<Task> BackButtonClickHandler { get; set; } = null!;
+
+    [Parameter]
+    public int Size { get; set; } = 40;
+
+    private string SearchTerm { get; set; } = "";
+
+    private string Pattern = @"^http(s)?://([^\/:]+)(:\d+)?\/explorer\/search\/([^\/]+)$";
+    private string SearchURL = "/explorer/search/{0}";
+
+    protected override async Task OnInitializedAsync()
+    {
+        navigationManager.LocationChanged += HandleLocationChanged;
+
+        await SetUrlSearchTerm(navigationManager.Uri);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // set searchterm if current uri is the search uri 
+        await SetUrlSearchTerm(navigationManager.Uri);
+
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task SetUrlSearchTerm(string Uri)
+    {
+        Regex searchRegex = new Regex(Pattern);
+        if (searchRegex.IsMatch(navigationManager.Uri))
+        {
+            var sb = new StringBuilder();
+
+            var match = searchRegex.Match(Uri);
+            for (int i = 4; i < match.Groups.Count; i++)
+                sb.Append(match.Groups[i]);
+
+            string urlSearchTerm = sb.ToString();
+
+            if (SearchTerm != sb.ToString())
+            {
+                SearchTerm = urlSearchTerm;
+
+                await Task.Yield();
+                await InvokeAsync(()
+                    => StateHasChanged());
+            }
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        /// clear search-term, if url ist different to search uri
+        if (!new Regex(Pattern).IsMatch(navigationManager.Uri))
+        {
+            SearchTerm = "";
+            await InvokeAsync(()
+                => StateHasChanged());
+        }
+        else
+            await SetUrlSearchTerm(navigationManager.Uri);
+    }
+
+    private async Task OnSearchClicked()
+        => await Task.Run(() =>
+        {
+            try
+            {
+                // navigate to search uri ...
+                navigationManager.NavigateTo(string.Format(SearchURL, SearchTerm));
+                InvokeAsync(() => StateHasChanged());
+            }
+            finally
+            {
+            }
+        });
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    => await Task.Run(async () =>
+        {
+            if (e.Key == "Enter")
+            {
+                await OnSearchClicked();
+            }
+        }
+    );
+
+    public void Dispose()
+    {
+        // Vergessen Sie nicht, den Event Handler abzumelden
+        navigationManager.LocationChanged -= HandleLocationChanged;
+
+        SearchTerm = "";
+    }
+}

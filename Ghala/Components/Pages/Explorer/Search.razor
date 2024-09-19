@@ -1,0 +1,80 @@
+﻿@page "/explorer/search/{SearchValue?}"
+@implements IDisposable
+
+@inject IConfiguration Configuration
+
+@rendermode InteractiveServer
+
+@using Nox.Web.Components
+@using Nox.Web.Controls
+@using Nox.WebApi
+
+<LoadingIndicator @ref="loadingIndicator" />
+
+<PageTitle>Status</PageTitle>
+
+<div>
+    <span>@SearchValue</span>
+    @if (_isLoading)
+    {
+        <div>
+
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string SearchValue { get; set; } = "";
+
+    private LoadingIndicator loadingIndicator = null!;
+
+    private async Task ReloadDataAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var Token = Configuration["MotisDataProvider:Token"] ??
+                throw new ArgumentNullException($"MotisDataProvider:Token must not be null");
+
+            loadingIndicator.Show();
+
+            // go
+
+            // done
+            await InvokeAsync(() =>
+                    {
+                        StateHasChanged();
+                    });
+        }
+        catch (TaskCanceledException)
+        {
+
+        }
+        finally
+        {
+            loadingIndicator.Hide();
+        }
+    }
+
+    private bool _isLoading = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var cts = new CancellationTokenSource();
+                await ReloadDataAsync(cts.Token);
+            }
+            finally
+            {
+                _isLoading = false;
+            }            
+        }
+    }
+
+    public void Dispose()
+    {
+        // Bereinige Ressourcen, falls notwendig
+    }
+}

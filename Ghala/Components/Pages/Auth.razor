@@ -1,0 +1,63 @@
+﻿@page "/auth"
+@using Nox.WebApi
+
+@rendermode InteractiveServer
+
+@inject AuthTokenManager TokenManager;
+@inject NavigationManager NavigationManager
+
+<h3>Auth</h3>
+
+<div class="auth">
+    <RadzenCard class="rz-my-12 rz-mx-auto rz-p-4 rz-p-md-12" style="max-width: 600px;">
+        <RadzenTemplateForm Data=@("LoginWithRemember")>
+            <RadzenLogin AllowRegister="false" AllowResetPassword="true" Username=@Mail Password=@Password
+                        AllowRememberMe="true" FormFieldVariant="Variant.Filled"
+                        LoginText="Anmelden" UserText="Email" PasswordText="Passwort"
+                        UserRequired="Email erforderlich"
+                        PasswordRequired="Passwort erforderlich"
+                        RememberMeText="Anmeldung merken"
+                         Login=@(args => OnLogin(args)) />
+        </RadzenTemplateForm>
+    </RadzenCard>
+
+</div>
+<div>
+    <span>@LastError</span>
+</div>
+
+@code {
+
+    private string Mail { get; set; } = "";
+    private string Password { get; set; } = "";
+
+    private string LastError { get; set; } = "";
+
+    private async Task OnLogin(LoginArgs args)
+        => await Task.Run(() =>
+        {
+            //console.Log($"{name} -> Username: {args.Username}, password: {args.Password}, remember me: {args.RememberMe}");
+
+            try
+            {
+                var Result = TokenManager.AuthenticateUser(args.Username, args.Password);
+
+                switch (Result.State)
+                {
+                    case StateEnum.Success:
+                        NavigationManager.NavigateTo("/#", true);
+                        break;
+                    default:
+                        LastError = Result.Message;
+                        Password = "";
+                        break;
+                }
+            }
+            finally
+            {
+                Password = "";
+                InvokeAsync(() => StateHasChanged());
+            }
+        });
+}
+

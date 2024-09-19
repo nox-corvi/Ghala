@@ -1,0 +1,51 @@
+﻿
+div.status {
+    display: block;
+    width: max-content;
+}
+
+table.status {
+    /*font-family: monospace;*/
+    font-size: large;
+    flex-direction: column;
+    width: 100%; /* Streckt die Tabelle auf die volle Breite des Containers */
+    border-collapse: collapse; /* Entfernt doppelte Ränder */
+    margin-bottom: 10px; /* Optional: Fügt Abstand zwischen den Tabellen hinzu */
+}
+
+table.status td {
+    /*border: 2px solid #7d3d74;*/
+    /*background-color: #7ecfb1;*/
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+table.status tr {
+    border: 1px groove #929292;
+}
+
+table.status thead {
+    font-weight: bold;
+    border: 1px groove #929292;
+    background-color: #d9b244;
+}
+
+table.status tr.head {
+    background-color: #7ecfb1;
+}
+
+table.status tr.done {
+    background-color: #96d96d;
+}
+
+table.status td.head {
+    text-align: right;
+}
+
+table.status td.pos {
+    text-align: right;
+}
+
+table.status td.description {
+    width: 100%;
+}

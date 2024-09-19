@@ -1,0 +1,118 @@
+﻿@rendermode InteractiveServer
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">
+            <span style="font-style: bold;">G</span><span style="font-size: calc(1em - 3px);">HALA</span>
+        </a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="navbar nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="#" @onclick="() => _SubMenu = SubMenuItemEnum.None">
+                <span class="bi bi-house" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="javascript:void(100);" @onclick="() => _SubMenu = SubMenuItemEnum.Dashboard">
+                <span class="bi bi-app" aria-hidden="true"></span> Dashboard
+            </NavLink>
+            @if (_SubMenu == SubMenuItemEnum.Dashboard)
+            {
+                <div class="expand-menu">
+                    <NavLink class="nav-link px-4" href="dashboard/status">
+                        <span class="bi bi-app" aria-hidden="true" Match="NavLinkMatch.Prefix"></span> Status
+                    </NavLink>
+                    <NavLink class="nav-link px-4" href="dashboard/picking-zone" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> Kommi-Zone
+                    </NavLink>
+                    <NavLink class="nav-link px-4" href="javascript:void(0582);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub
+                    </NavLink>
+                </div>
+            }
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="javascript:void(100);" @onclick="() => _SubMenu = SubMenuItemEnum.Logistic">
+                <span class="bi bi-app" aria-hidden="true"></span> Versand
+            </NavLink>
+            @if (_SubMenu == SubMenuItemEnum.Logistic)
+            {
+                <div class="expand-menu">
+                    <NavLink class="nav-link px-4" href="logistic/ship-same-day" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> Versand Heute
+                    </NavLink>
+                    <NavLink class="nav-link px-4" href="logistic/customer-pickup" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> Abholung
+                    </NavLink>
+                    <NavLink class="nav-link px-4" href="logistic/delivery-route" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> Tour
+                    </NavLink>
+                    <NavLink class="nav-link px-4" href="javascript:void(0582);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub
+                    </NavLink>
+                </div>
+            }
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="javascript:void(0);" @onclick="() => _SubMenu = SubMenuItemEnum.Explorer">
+                <span class="bi bi-app" aria-hidden="true"></span> Explorer
+            </NavLink>
+            @if (_SubMenu == SubMenuItemEnum.Explorer)
+            {
+                <div class="nav-item px-4">
+                    <NavLink class="nav-link" href="explorer/picking-bin-status" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> LaHi Status
+                    </NavLink>
+                    <NavLink class="nav-link" href="javascript:void(3);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub 2
+                    </NavLink>
+                    <NavLink class="nav-link" href="javascript:void(4);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub
+                    </NavLink>
+                </div>
+            }
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="javascript:void(0);" Match="NavLinkMatch.Prefix" @onclick="() => _SubMenu = SubMenuItemEnum.Tools">
+                <span class="bi bi-app" aria-hidden="true"></span> Tools
+            </NavLink>
+            @if (_SubMenu == SubMenuItemEnum.Tools)
+            {
+                <div class="expand-menu px-4">
+                    <NavLink class="nav-link" href="tools/invoice-verification" Match="NavLinkMatch.Prefix">
+                        <span class="bi bi-app" aria-hidden="true"></span> RG Prüfung
+                    </NavLink>
+                    <NavLink class="nav-link" href="javascript:void(1);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub
+                    </NavLink>
+                    <NavLink class="nav-link" href="javascript:void(2);" Match="NavLinkMatch.All">
+                        <span class="bi bi-app" aria-hidden="true"></span> Blub
+                    </NavLink>
+                </div>
+            }
+        </div>
+    </nav>
+</div>
+
+@code {
+    private enum SubMenuItemEnum
+    {
+        None,
+        Dashboard,
+        Logistic,
+        Explorer,
+        Tools,
+        //        Order
+    };
+
+
+
+    private SubMenuItemEnum _SubMenu = SubMenuItemEnum.None;
+}

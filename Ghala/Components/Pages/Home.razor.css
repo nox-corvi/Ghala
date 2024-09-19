@@ -1,0 +1,6 @@
+﻿img.back {
+    width: 100%; /* Streckt die Tabelle auf die volle Breite des Containers */
+    height: 100%;
+    
+    opacity: 0.05;
+}

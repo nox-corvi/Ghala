@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\XAuth\XAuthPool\XAuthPool8x\XAuthPool8x.csproj" />
+    <ProjectReference Include="..\GhalaDataPool\GhalaDataPool.csproj" />
+    <ProjectReference Include="..\MotisDataAccess\MotisDataAccess.csproj" />
+    <ProjectReference Include="..\MotisDataDef\MotisDataDef.csproj" />
+  </ItemGroup>
+
+</Project>
