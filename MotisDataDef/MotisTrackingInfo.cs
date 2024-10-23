@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 
 namespace MotisDataDef;
 
-public class TrackingInfo
+public class MotisTrackingInfo
 {
     /// <summary>
     /// Die Packlistennummer aus eNVenta

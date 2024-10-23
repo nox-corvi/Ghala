@@ -18,7 +18,7 @@ public class Ghala(IConfiguration Configuration, ILogger Logger)
     #region Access Methods
     public DataShell<GhalaDataDef.GhalaOption> GetOption(string KeyValue)
     {
-        Logger.LogInformation($"GetOption {KeyValue}");
+        Logger.LogInformation($"GetOption '{KeyValue}'");
 
         return GhalaOption.GetWhereKeyValue(this, KeyValue);
     }

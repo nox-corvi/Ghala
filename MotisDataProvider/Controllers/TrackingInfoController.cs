@@ -20,8 +20,8 @@ public class TrackingInfoController(IConfiguration Configuration, XAuth XAuth, M
     }
 
     [HttpGet()]
-    public Shell<MotisDataDef.TrackingInfo> GetTrackingInfo(string OrderId, int FixedItemPos, string Branch)
+    public Shell<MotisDataDef.MotisTrackingInfo> GetTrackingInfo(string OrderId, int FixedItemPos, string Branch)
         => Shell.SuccessHandler(
             XAuth.ValidateToken(Token, "read trackinginfo"), (s) =>
-                TrackingInfo.GetTrackingByPackingListId(Motis, OrderId, FixedItemPos, Branch));
+                MotisTrackingInfo.GetTrackingByPackingListId(Motis, OrderId, FixedItemPos, Branch));
 }

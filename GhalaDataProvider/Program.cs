@@ -29,6 +29,7 @@ namespace GhalaDataProvider
             builder.Services.AddSingleton<ILoggerFactory>(Global.LoggerFactory);
             builder.Services.AddSingleton<GhalaDataAccess.Ghala>();
             builder.Services.AddSingleton<XAuth>();
+            
 
             var app = builder.Build();
 

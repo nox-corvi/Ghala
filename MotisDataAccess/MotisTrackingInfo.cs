@@ -8,8 +8,8 @@ using System.Runtime.InteropServices;
 
 namespace MotisDataAccess;
 
-public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Logger)
-    : Shell<MotisDataDef.TrackingInfo>
+public class MotisTrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Logger)
+    : Shell<MotisDataDef.MotisTrackingInfo>
 {
     public const string SHIPPING_PICKUP = "ABHOLUNG";
     public const string SHIPPING_FORWARDER = "SPEDITION";
@@ -20,10 +20,10 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
     public const string SHIPPING_UPS = "UPS";
     public const string SHIPPING_GLS = "GLS";
 
-    public Shell<MotisDataDef.TrackingInfo> GetTrackingByPackingListId(string OrderId, int FixedItemPos, string Branch = "001")
+    public Shell<MotisDataDef.MotisTrackingInfo> GetTrackingByPackingListId(string OrderId, int FixedItemPos, string Branch = "001")
        => GetTrackingByPackingListId(Motis, OrderId, FixedItemPos, Branch);
 
-    public static Shell<MotisDataDef.TrackingInfo> GetTrackingByPackingListId(Motis Motis, string OrderId, int FixedItemPos, string Branch = "001")
+    public static Shell<MotisDataDef.MotisTrackingInfo> GetTrackingByPackingListId(Motis Motis, string OrderId, int FixedItemPos, string Branch = "001")
     {
         try
         {
@@ -64,9 +64,9 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
         }
     }
 
-    private static List<MotisDataDef.TrackingInfo> ReaderToObjectList(Motis Motis, SqlDataReader r)
+    private static List<MotisDataDef.MotisTrackingInfo> ReaderToObjectList(Motis Motis, SqlDataReader r)
     {
-        var ResultItem = new MotisDataDef.TrackingInfo()
+        var ResultItem = new MotisDataDef.MotisTrackingInfo()
         {
             PackingListId = Helpers.NZ(r["MasterAuftragNr"]),
             FixedItemId = int.Parse(Helpers.N<int>(r["MasterPosNr"]).ToString()),
@@ -77,13 +77,13 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
         string Token = Motis.Configuration["GhalaDataProvider:Token"] ??
             throw new ArgumentNullException("GhalaDataProvider:Token");
 
-        var Option = new GhalaDataPool.GhalaOption(Motis.Configuration, Motis.Logger);
+        var Option = new GhalaDataPool.Ghala(Motis.Configuration, Motis.Logger);
 
         // get wildcard ...
         var OptionItem = Option.GetOption("TRACKING URL WILDCARD");
         if (OptionItem.State == StateEnum.Success)
         {
-            var Wildcard = OptionItem.First().Data;
+            var Wildcard = OptionItem.AdditionalData1;
             string ShippingProvider = string.Concat(Helpers.NZ(r["Versandart"]), ' ').Split(' ').First();
             switch (ShippingProvider.ToUpper())
             {
@@ -97,7 +97,7 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
                     OptionItem = Option.GetOption("TRACKING URL DPD");
                     if (OptionItem.State == StateEnum.Success)
                     {
-                        var DPDTrackingUrl = OptionItem.First().Data;
+                        var DPDTrackingUrl = OptionItem.AdditionalData1;
                         ResultItem.ShippingProvider = ShippingProvider;
                         if (string.IsNullOrWhiteSpace(ResultItem.ColliId))
                             ResultItem.TrackingLink = "";
@@ -111,7 +111,7 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
                     OptionItem = Option.GetOption("TRACKING URL UPS");
                     if (OptionItem.State == StateEnum.Success)
                     {
-                        var UPSTrackingUrl = OptionItem.First().Data;
+                        var UPSTrackingUrl = OptionItem.AdditionalData1;
                         ResultItem.ShippingProvider = ShippingProvider;
                         if (string.IsNullOrWhiteSpace(ResultItem.TrackingId))
                             ResultItem.TrackingLink = "";
@@ -125,7 +125,7 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
                     OptionItem = Option.GetOption("TRACKING URL GLS");
                     if (OptionItem.State == StateEnum.Success)
                     {
-                        var GLSTrackingUrl = OptionItem.First().Data;
+                        var GLSTrackingUrl = OptionItem.AdditionalData1;
                         ResultItem.ShippingProvider = ShippingProvider;
                         if (string.IsNullOrWhiteSpace(ResultItem.TrackingId))
                             ResultItem.TrackingLink = "";
@@ -141,12 +141,12 @@ public class TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger Log
                     break;
             }
 
-            return new List<MotisDataDef.TrackingInfo>() { ResultItem };
+            return new List<MotisDataDef.MotisTrackingInfo>() { ResultItem };
         } else
             throw new Exception("option not found");
     }
 
     // DI-Constructor
-    public TrackingInfo(Motis Motis, IConfiguration Configuration, ILogger<TrackingInfo> Logger)
+    public MotisTrackingInfo(Motis Motis, IConfiguration Configuration, ILogger<MotisTrackingInfo> Logger)
         : this(Motis, Configuration, (ILogger)Logger) { }
 }

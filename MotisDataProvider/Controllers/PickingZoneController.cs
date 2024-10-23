@@ -21,11 +21,11 @@ public class PickingZoneController(XAuth XAuth, Motis Motis, IConfiguration Conf
     }
 
     [HttpGet()]
-    public Shell<MotisDataDef.PickingZone> GetPickingZones(string Token)
+    public Shell<MotisDataDef.MotisPickingZone> GetPickingZones(string Token)
             => Shell.SuccessHandler(
                 XAuth.ValidateToken(Token, "read pickingzone"), (s) =>
                 {
-                    return Shell.SuccessHandler(PickingZone.GetPickingZones(Motis),
+                    return Shell.SuccessHandler(MotisPickingZone.GetPickingZones(Motis),
                         (r) => r);
                 });
 }

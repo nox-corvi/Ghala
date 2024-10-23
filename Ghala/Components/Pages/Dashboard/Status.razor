@@ -3,6 +3,7 @@
 
 @inject IConfiguration Configuration
 @inject ILogger<Status> Logger
+@inject GhalaDataPool.Ghala ghalaOption
 
 @rendermode InteractiveServer
 
@@ -18,149 +19,163 @@
 <PageTitle>Status</PageTitle>
 
 @* <h1>Status</h1>
+
+font-size: large;
+    flex-direction: column;
+    width: 100%; /* Streckt die Tabelle auf die volle Breite des Containers */
+    border-collapse: collapse; /* Entfernt doppelte Ränder */
+    margin-bottom: 10px; /* Optional: Fügt
+
  *@
 <div>Daten von @LastRefresh</div>
-
-<RadzenStack Orientation="Orientation.Vertical" Wrap="FlexWrap.NoWrap">
-    <RadzenStack AlignItems="AlignItems.Start">
-        <table class="status">
-            <thead>
-                <tr>
-                    <td>Aufträge</td>
-                    <td></td>
-                    <td>Pos</td>
-                    <td></td>
-                </tr>
-            </thead>
-            <tr>
-                <td class="head">@ERPReleasedHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPReleasedPos</td>
-                <td class="description">freigegeben</td>
+@* <RadzenDataGrid>
+    <RadzenDataGridRow>
+        <RadzenDataGridColumn Title="Auftrag" />
+        <RadzenDataGridColumn Title="" />
+        <RadzenDataGridColumn Title="Pos" />
+    </RadzenDataGridRow>    
+</RadzenDataGrid>
+ *@<RadzenStack Style="display: block; width: max-content; font-size: large">
+<RadzenStack Style="rz-overflow-auto rz-w-50 rz-background-color-info-lighter rz-color-on-info-lighter">
+    <table class="rz-m-2 rz-px-8 rz-border">
+        <thead>
+            <tr class="rz-background-color-primary rz-color-on-primary">
+                <td style="text-align: right">Aufträge</td>
+                <td></td>
+                <td style ="text-align: right">Pos</td>
+                <td></td>
             </tr>
-            <tr>
-                <td class="head">@ERPNewTotalHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPNewTotalPos</td>
-                <td class="description">neu (Total)</td>
-            </tr>
-            <tr>
-                <td class="head">@ERPNewBackLogHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPNewBackLogPos</td>
-                <td class="description">  # im Rückstand</td>
-            </tr>
-            <tr>
-                <td class="head">@ERPNewTodayHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPNewTodayPos</td>
-                <td class="description">  # Freigabe HEUTE fällig</td>
-            </tr>
-            <tr>
-                <td class="head">@ERPNewTomorrowHead</td>
-                <td>/</td>
-                <td class="pos">@ERPNewTomorrowPos</td>
-                <td class="description">  # Freigabe MORGEN fällig</td>
-            </tr>
-            <tr>
-                <td class="head">@ERPNewFutureHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPNewFuturePos</td>
-                <td class="description">  # Freigabe ÜBERMORGEN / SPÄTER fällig</td>
-            </tr>
-            <tr>
-                <td class="head">@ERPInProgressHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPInProgressPos</td>
-                <td class="description">in Bearbeitung</td>
-            </tr>
-            <tr class="done">
-                <td class="head">@ERPOrdersDoneHead</td>
-                <td class="">/</td>
-                <td class="pos">@ERPOrdersDonePos</td>
-                <td class="description">fertig</td>
-            </tr>
-        </table>
-    </RadzenStack>
-    <RadzenStack AlignItems="AlignItems.Start">
-        <table class="status">
-            <thead>
-                <tr>
-                    <td>Aufträge</td>
-                    <td></td>
-                    <td>Pos</td>
-                    <td></td>
-                </tr>
-            </thead>
-            <tr>
-                <td class="head">@POTotalHead</td>
-                <td class="">/</td>
-                <td class="pos">@POTotalPos</td>
-                <td class="description">in Bearbeitung (Total)</td>
-            </tr>
-            <tr>
-                <td class=""></td>
-                <td class=""></td>
-                <td class="pos">@POOpenPos</td>
-                <td class="description">  # noch OFFEN</td>
-            </tr>
-            <tr>
-                <td class=""></td>
-                <td class=""></td>
-                <td class="pos">@POrfsPos</td>
-                <td class="description">  # versandfertig</td>
-            </tr>
-            <tr class="done">
-                <td class="head">@PODoneHead</td>
-                <td class=""></td>
-                <td class="pos">@PODonePos</td>
-                <td class="description">fertig</td>
-            </tr>
-        </table>
-    </RadzenStack>
-    <RadzenStack AlignItems="AlignItems.Start">
-        <table class="status">
-            <thead>
-                <tr>
-                    <td>Aufträge</td>
-                    <td></td>
-                    <td>Pos</td>
-                    <td></td>
-                </tr>
-            </thead>
-            <tr>
-                <td class="head">@P_ERPOrdersDoneHead[0]</td>
-                <td class="">/</td>
-                <td class="pos">@P_ERPOrdersDonePos[0]</td>
-                <td class="description">@P_ERPOrdersDone[0]</td>
-            </tr>
-            <tr>
-                <td class="head">@P_ERPOrdersDoneHead[1]</td>
-                <td class="">/</td>
-                <td class="pos">@P_ERPOrdersDonePos[1]</td>
-                <td class="description">@P_ERPOrdersDone[1]</td>
-            </tr>
-            <tr>
-                <td class="head">@P_ERPOrdersDoneHead[2]</td>
-                <td class="">/</td>
-                <td class="pos">@P_ERPOrdersDonePos[2]</td>
-                <td class="description">@P_ERPOrdersDone[2]</td>
-            </tr>
-            <tr>
-                <td class="head">@P_ERPOrdersDoneHead[3]</td>
-                <td class="">/</td>
-                <td class="pos">@P_ERPOrdersDonePos[3]</td>
-                <td class="description">@P_ERPOrdersDone[3]</td>
-            </tr>
-            <tr>
-                <td class="head">@P_ERPOrdersDoneHead[4]</td>
-                <td class="">/</td>
-                <td class="pos">@P_ERPOrdersDonePos[4]</td>
-                <td class="description">@P_ERPOrdersDone[4]</td>
-            </tr>
-        </table>
-    </RadzenStack>
+        </thead>
+        <tr>
+            <td style="text-align: right" class="rz-primary">@ERPReleasedHead</td>
+            <td class="">/</td>
+            <td style="text-align: right" class="pos">@ERPReleasedPos</td>
+            <td class="description">freigegeben</td>
+        </tr>
+        <tr>
+            <td style="text-align: right" class="head">@ERPNewTotalHead</td>
+            <td class="">/</td>
+            <td style="text-align: right" class="pos">@ERPNewTotalPos</td>
+            <td class="description">neu (Total)</td>
+        </tr>
+        <tr>
+            <td style="text-align: right" class="head">@ERPNewBackLogHead</td>
+            <td class="">/</td>
+            <td style="text-align: right" class="pos">@ERPNewBackLogPos</td>
+            <td class="description">  # im Rückstand</td>
+        </tr>
+        <tr>
+            <td class="head">@ERPNewTodayHead</td>
+            <td class="">/</td>
+            <td class="pos">@ERPNewTodayPos</td>
+            <td class="description">  # Freigabe HEUTE fällig</td>
+        </tr>
+        <tr>
+            <td style="text-align: right" class="head">@ERPNewTomorrowHead</td>
+            <td>/</td>
+            <td style="text-align: right" class="pos">@ERPNewTomorrowPos</td>
+            <td class="description">  # Freigabe MORGEN fällig</td>
+        </tr>
+        <tr>
+            <td class="head">@ERPNewFutureHead</td>
+            <td class="">/</td>
+            <td class="pos">@ERPNewFuturePos</td>
+            <td class="description">  # Freigabe ÜBERMORGEN / SPÄTER fällig</td>
+        </tr>
+        <tr>
+            <td class="head">@ERPInProgressHead</td>
+            <td class="">/</td>
+            <td class="pos">@ERPInProgressPos</td>
+            <td class="description">in Bearbeitung</td>
+        </tr>
+            <tr class="rz-background-color-secondary rz-color-on-secondary">
+            <td class="head">@ERPOrdersDoneHead</td>
+            <td class="">/</td>
+            <td class="pos">@ERPOrdersDonePos</td>
+            <td class="description">fertig</td>
+        </tr>
+    </table>
 </RadzenStack>
+<RadzenStack Style="rz-overflow-auto rz-w-50 rz-background-color-info-lighter rz-color-on-info-lighter">
+    <table class="status">
+        <thead>
+            <tr>
+                <td>Aufträge</td>
+                <td></td>
+                <td>Pos</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tr>
+            <td class="head">@POTotalHead</td>
+            <td class="">/</td>
+            <td class="pos">@POTotalPos</td>
+            <td class="description">in Bearbeitung (Total)</td>
+        </tr>
+        <tr>
+            <td class=""></td>
+            <td class=""></td>
+            <td class="pos">@POOpenPos</td>
+            <td class="description">  # noch OFFEN</td>
+        </tr>
+        <tr>
+            <td class=""></td>
+            <td class=""></td>
+            <td class="pos">@POrfsPos</td>
+            <td class="description">  # versandfertig</td>
+        </tr>
+        <tr class="done">
+            <td class="head">@PODoneHead</td>
+            <td class=""></td>
+            <td class="pos">@PODonePos</td>
+            <td class="description">fertig</td>
+        </tr>
+    </table>
+</RadzenStack>
+<RadzenStack Style="rz-overflow-auto rz-w-50 rz-background-color-info-lighter rz-color-on-info-lighter">
+    <table class="status">
+        <thead>
+            <tr>
+                <td>Aufträge</td>
+                <td></td>
+                <td>Pos</td>
+                <td></td>
+            </tr>
+        </thead>
+        <tr>
+            <td class="head">@P_ERPOrdersDoneHead[0]</td>
+            <td class="">/</td>
+            <td class="pos">@P_ERPOrdersDonePos[0]</td>
+            <td class="description">@P_ERPOrdersDone[0]</td>
+        </tr>
+        <tr>
+            <td class="head">@P_ERPOrdersDoneHead[1]</td>
+            <td class="">/</td>
+            <td class="pos">@P_ERPOrdersDonePos[1]</td>
+            <td class="description">@P_ERPOrdersDone[1]</td>
+        </tr>
+        <tr>
+            <td class="head">@P_ERPOrdersDoneHead[2]</td>
+            <td class="">/</td>
+            <td class="pos">@P_ERPOrdersDonePos[2]</td>
+            <td class="description">@P_ERPOrdersDone[2]</td>
+        </tr>
+        <tr>
+            <td class="head">@P_ERPOrdersDoneHead[3]</td>
+            <td class="">/</td>
+            <td class="pos">@P_ERPOrdersDonePos[3]</td>
+            <td class="description">@P_ERPOrdersDone[3]</td>
+        </tr>
+        <tr>
+            <td class="head">@P_ERPOrdersDoneHead[4]</td>
+            <td class="">/</td>
+            <td class="pos">@P_ERPOrdersDonePos[4]</td>
+            <td class="description">@P_ERPOrdersDone[4]</td>
+        </tr>
+    </table>
+</RadzenStack>
+</RadzenStack>
+
 
 @* <div class="status">
     <p>
@@ -352,7 +367,7 @@
 
             Logger.LogInformation($"{nameof(ReloadDataAsync)}@{DateTime.Now}");
 
-            var StatusInstance = new MotisDataPool.Data.Status(Configuration, Logger);
+            var StatusInstance = new MotisDataPool.Motis(Configuration, Logger);
 
             Logger.LogShell(await Shell.SuccessAndHandlerAsync(
                 async () => await Shell.SuccessHandlerAsync(await StatusInstance.CountReleasedERPOrdersAsync(CurrentDate), (shell) =>
@@ -450,7 +465,7 @@
 
                     return Task.FromResult(shell);
                 }),
-                async () => await Shell.ForHandlerAsync<Shell<MotisDataDef.Status>>(0, 5, async (i) =>
+                async () => await Shell.ForHandlerAsync<Shell<MotisDataDef.MotisStatus>>(0, 5, async (i) =>
                 {
                     // LBD
                     var LastBusinessDay = CurrentDate;
@@ -471,7 +486,7 @@
 
                             return Task.FromResult(shell);
                         });
-                })), 
+                })),
                 $"{nameof(ReloadDataAsync)}");
 
             LastRefresh = DateTime.Now;
@@ -487,7 +502,7 @@
         catch (Exception e)
         {
             Logger.LogException(e, this.ToString());
-    }
+        }
         finally
         {
             loadingIndicator.Hide();
@@ -530,11 +545,10 @@
 
         if (!_isInternalInitialized)
         {
-            var Option = new GhalaDataPool.GhalaOption(Configuration, Logger);
-            var OptionItem = await Option.GetOptionAsync("STATUS REFRESH COUNTER");
+            var OptionItem = await ghalaOption.GetOptionAsync("STATUS REFRESH COUNTER");
 
             if (OptionItem.State == StateEnum.Success)
-                if (int.TryParse(OptionItem.First().Data, out int ParsedValue))
+                if (int.TryParse(OptionItem.AdditionalData1, out int ParsedValue))
                     StatusRefreshCounter = ParsedValue;
 
             RefreshTimer = new Timer(new TimerCallback(async _ => await TimerTickAsync()), null, 500, 500);

@@ -26,11 +26,11 @@ public class TrackingInfo(IConfiguration Configuration, ILogger Logger)
                 ?? throw new ArgumentNullException("MotisDataProvider:Token");
     }
 
-    public Task<MotisDataDef.TrackingInfo> GetTrackingInfoAsync(string OrderId, int FixedItemPos)
-        => RestGetAsync<MotisDataDef.TrackingInfo>($"TrackingInfo/GetTrackingInfo?OrderId={OrderId}&FixedItemPos={FixedItemPos}", Token);
+    public Task<MotisDataDef.MotisTrackingInfo> GetTrackingInfoAsync(string OrderId, int FixedItemPos)
+        => RestGetAsync<MotisDataDef.MotisTrackingInfo>($"TrackingInfo/GetTrackingInfo?OrderId={OrderId}&FixedItemPos={FixedItemPos}", Token);
 
-    public MotisDataDef.TrackingInfo GetTrackingInfo(string OrderId, int FixedItemPos)
-        => RestGet<MotisDataDef.TrackingInfo>($"TrackingInfo/GetTrackingInfo?OrderId={OrderId}&FixedItemPos={FixedItemPos}", Token);
+    public MotisDataDef.MotisTrackingInfo GetTrackingInfo(string OrderId, int FixedItemPos)
+        => RestGet<MotisDataDef.MotisTrackingInfo>($"TrackingInfo/GetTrackingInfo?OrderId={OrderId}&FixedItemPos={FixedItemPos}", Token);
 
     public TrackingInfo(IConfiguration Configuration, ILogger<TrackingInfo> Logger)
         : this(Configuration, (ILogger)Logger) { }

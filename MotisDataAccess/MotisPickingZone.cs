@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace MotisDataAccess
 {
-    public class PickingZone(Motis Motis)
-    : Shell<MotisDataDef.PickingZone>
+    public class MotisPickingZone(Motis Motis)
+    : Shell<MotisDataDef.MotisPickingZone>
     {
-        public Shell<MotisDataDef.PickingZone> GetPickingZones()
+        public Shell<MotisDataDef.MotisPickingZone> GetPickingZones()
            => GetPickingZones(Motis);
 
-        public static Shell<MotisDataDef.PickingZone> GetPickingZones(Motis Motis)
+        public static Shell<MotisDataDef.MotisPickingZone> GetPickingZones(Motis Motis)
         {
             try
             {
@@ -37,12 +37,12 @@ namespace MotisDataAccess
             }
         }
 
-        private static List<MotisDataDef.PickingZone> ReaderToObjectList(SqlDataReader r)
+        private static List<MotisDataDef.MotisPickingZone> ReaderToObjectList(SqlDataReader r)
         {
-            var Result = new List<MotisDataDef.PickingZone>();
+            var Result = new List<MotisDataDef.MotisPickingZone>();
             while (r.Read())
             {
-                Result.Add(new MotisDataDef.PickingZone()
+                Result.Add(new MotisDataDef.MotisPickingZone()
                 {
                     Id = r.GetInt16(0)
                 });

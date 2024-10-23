@@ -7,7 +7,7 @@ using Nox.WebApi;
 
 namespace MotisDataDef;
 
-public class Status
+public class MotisStatus
 {
     public string D { get; set; } = "";
 

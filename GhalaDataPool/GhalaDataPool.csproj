@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Libs\Libs.Web\Libs.Web.csproj" />
     <ProjectReference Include="..\..\Libs\Libs\Libs8x\Libs8x.csproj" />
     <ProjectReference Include="..\GhalaDataDef\GhalaDataDef.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using GhalaDataPool;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MotisDataDef;
 using Nox;
@@ -10,13 +11,13 @@ using System.Security.Cryptography;
 
 namespace MotisDataAccess;
 
-public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
-    : Shell<MotisDataDef.Status>
+public class MotisStatus(Motis Motis, ILogger Logger, GhalaDataPool.Ghala Ghala)
+    : Shell<MotisDataDef.MotisStatus>
 {
-    public Shell<MotisDataDef.Status> CountReleasedERPOrders(DateTime Date)
-        => CountReleasedERPOrders(Motis, Date);
+    public Shell<MotisDataDef.MotisStatus> CountReleasedERPOrders(DateTime Date)
+        => Logger.LogShell(CountReleasedERPOrders(Motis, Date));
 
-    public static Shell<MotisDataDef.Status> CountReleasedERPOrders(Motis Motis, DateTime Date)
+    public static Shell<MotisDataDef.MotisStatus> CountReleasedERPOrders(Motis Motis, DateTime Date)
     {
         try
         {
@@ -41,7 +42,7 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
                         Data = ReaderToObjectList(reader)
                     };
                 else
-                    return new(StateEnum.Failure, "not found");
+                    return new(StateEnum.Failure, Shell.NO_RESULT);
         }
         catch (Exception ex)
         {
@@ -49,10 +50,10 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         }
     }
 
-    public Shell<MotisDataDef.Status> CountERPOrdersInProgress()
-        => CountERPOrdersInProgress(Motis);
+    public Shell<MotisDataDef.MotisStatus> CountERPOrdersInProgress()
+        => Logger.LogShell(CountERPOrdersInProgress(Motis));
 
-    public static Shell<MotisDataDef.Status> CountERPOrdersInProgress(Motis Motis)
+    public static Shell<MotisDataDef.MotisStatus> CountERPOrdersInProgress(Motis Motis)
     {
         try
         {
@@ -79,14 +80,14 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         }
         catch (Exception ex)
         {
-            return new Shell<MotisDataDef.Status>(StateEnum.Error, Helpers.SerializeException(ex));
+            return new Shell<MotisDataDef.MotisStatus>(StateEnum.Error, Helpers.SerializeException(ex));
         }
     }
 
-    public Shell<MotisDataDef.Status> CountPickOrdersDone(DateTime Date)
-        => CountPickOrdersDone(Motis, Date);
+    public Shell<MotisDataDef.MotisStatus> CountPickOrdersDone(DateTime Date)
+        => Logger.LogShell(CountPickOrdersDone(Motis, Date));
 
-    public static Shell<MotisDataDef.Status> CountPickOrdersDone(Motis Motis, DateTime Date)
+    public static Shell<MotisDataDef.MotisStatus> CountPickOrdersDone(Motis Motis, DateTime Date)
     {
         try
         {
@@ -119,10 +120,10 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         }
     }
 
-    public Shell<MotisDataDef.Status> CountERPOrdersDone(DateTime Date)
-        => CountERPOrdersDone(Motis, Date);
+    public Shell<MotisDataDef.MotisStatus> CountERPOrdersDone(DateTime Date)
+        => Logger.LogShell(CountERPOrdersDone(Motis, Date));
 
-    public static Shell<MotisDataDef.Status> CountERPOrdersDone(Motis Motis, DateTime Date)
+    public static Shell<MotisDataDef.MotisStatus> CountERPOrdersDone(Motis Motis, DateTime Date)
     {
         try
         {
@@ -155,9 +156,10 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         }
     }
 
-    public Shell<MotisDataDef.Status> CountNewERPOrders(DateTime Date)
-        => CountNewERPOrders(Motis, Date);
-    public static Shell<MotisDataDef.Status> CountNewERPOrders(Motis Motis, DateTime Date)
+    public Shell<MotisDataDef.MotisStatus> CountNewERPOrders(DateTime Date)
+        => Logger.LogShell(CountNewERPOrders(Motis, Ghala, Date));
+
+    public static Shell<MotisDataDef.MotisStatus> CountNewERPOrders(Motis Motis, Ghala ghalaOption, DateTime Date)
     {
         string Qry = @"
             select
@@ -172,78 +174,69 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
             where
                 h.[Status] = 0 and
                 datediff(dd, @date, convert(date, p.Lieferdatum)) {1}";
-        try
+
+        var Result = new Shell<MotisDataDef.MotisStatus>(StateEnum.Success)
         {
-            var Result = new Shell<MotisDataDef.Status>(StateEnum.Success)
-            {
-                Data = new()
-            };
+            Data = new()
+        };
 
-            using (var DbA = new SqlDbAccess(Motis.ConnectionString))
-            {
-                var Option = new GhalaDataPool.GhalaOption(Motis.Configuration, Motis.Logger);
+        var optionResult = ghalaOption.GetOption("DELIVERY LEAD TIME");
+        if (optionResult.State != StateEnum.Success)
+        {
+            return optionResult.Pass<Shell<MotisDataDef.MotisStatus>>();
+        }
 
-                var OptionItem = Option.GetOption("DELIVERY LEAD TIME");
+        var DeliveryLeadTime = int.Parse(optionResult.AdditionalData1);
+        using (var DbA = new SqlDbAccess(Motis.ConnectionString))
+        {
+            // BACKLOG
+            using (var reader = DbA.GetReader(
+                string.Format(Qry, "BACKLOG", $"< {DeliveryLeadTime}"),
+                new SqlParameter("DATE", Date)))
 
-                if (OptionItem.State == StateEnum.Success)
-                {
-                    var DeliveryLeadTime = int.Parse(OptionItem.First().Data);
+                if (reader.Read())
+                    Result.Data.AddRange(ReaderToObjectList(reader));
+                else
+                    return new(StateEnum.Failure, "not found");
 
-                    // BACKLOG
-                    using (var reader = DbA.GetReader(
-                        string.Format(Qry, "BACKLOG", $"< {DeliveryLeadTime}"),
-                        new SqlParameter("DATE", Date)))
+            // DEFAULT
 
-                        if (reader.Read())
-                            Result.Data.AddRange(ReaderToObjectList(reader));
-                        else
-                            return new(StateEnum.Failure, "not found");
+            using (var reader = DbA.GetReader(
+                string.Format(Qry, "TODAY", $"= {DeliveryLeadTime}"),
+                new SqlParameter("DATE", Date)))
 
-                    // DEFAULT
+                if (reader.Read())
+                    Result.Data.AddRange(ReaderToObjectList(reader));
+                else
+                    return new(StateEnum.Failure, "not found");
 
-                    using (var reader = DbA.GetReader(
-                        string.Format(Qry, "TODAY", $"= {DeliveryLeadTime}"),
-                        new SqlParameter("DATE", Date)))
+            // TOMORROW
+            using (var reader = DbA.GetReader(
+                string.Format(Qry, "TOMORROW", $"= {DeliveryLeadTime + 1}"),
+                new SqlParameter("DATE", Date)))
 
-                        if (reader.Read())
-                            Result.Data.AddRange(ReaderToObjectList(reader));
-                        else
-                            return new(StateEnum.Failure, "not found");
+                if (reader.Read())
+                    Result.Data.AddRange(ReaderToObjectList(reader));
+                else
+                    return new(StateEnum.Failure, "not found");
 
-                    // TOMORROW
-                    using (var reader = DbA.GetReader(
-                        string.Format(Qry, "TOMORROW", $"= {DeliveryLeadTime + 1}"),
-                        new SqlParameter("DATE", Date)))
+            // FUTURE
+            using (var reader = DbA.GetReader(
+                string.Format(Qry, "FUTURE", $"> {DeliveryLeadTime + 1}"),
+                new SqlParameter("DATE", Date)))
 
-                        if (reader.Read())
-                            Result.Data.AddRange(ReaderToObjectList(reader));
-                        else
-                            return new(StateEnum.Failure, "not found");
-
-                    // FUTURE
-                    using (var reader = DbA.GetReader(
-                        string.Format(Qry, "FUTURE", $"> {DeliveryLeadTime + 1}"),
-                        new SqlParameter("DATE", Date)))
-
-                        if (reader.Read())
-                            Result.Data.AddRange(ReaderToObjectList(reader));
-                        else
-                            return new(StateEnum.Failure, "not found");
-                } else
-                    return new(StateEnum.Failure, "option not found");
-            }
+                if (reader.Read())
+                    Result.Data.AddRange(ReaderToObjectList(reader));
+                else
+                    return new(StateEnum.Failure, "not found");
 
             return Result;
         }
-        catch (Exception ex)
-        {
-            return new(StateEnum.Error, Helpers.SerializeException(ex));
-        }
     }
 
-    public Shell<MotisDataDef.Status> CountPickOrdersInProgress()
+    public Shell<MotisDataDef.MotisStatus> CountPickOrdersInProgress()
         => CountPickOrdersInProgress(Motis);
-    public static Shell<MotisDataDef.Status> CountPickOrdersInProgress(Motis Motis)
+    public static Shell<MotisDataDef.MotisStatus> CountPickOrdersInProgress(Motis Motis)
     {
         string Qry = @"
             select
@@ -260,7 +253,7 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
                 {1}";
         try
         {
-            var Result = new Shell<MotisDataDef.Status>(StateEnum.Success)
+            var Result = new Shell<MotisDataDef.MotisStatus>(StateEnum.Success)
             {
                 Data = new()
             };
@@ -292,7 +285,7 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
 
                     if (Status.Read())
                         Result.Data.AddRange(ReaderToObjectList(Status));
-                    else 
+                    else
                         return new(StateEnum.Failure, "not found");
             }
 
@@ -304,11 +297,11 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         }
     }
 
-    private static List<MotisDataDef.Status> ReaderToObjectList(SqlDataReader r)
+    private static List<MotisDataDef.MotisStatus> ReaderToObjectList(SqlDataReader r)
     {
-        return new List<MotisDataDef.Status>()
+        return new List<MotisDataDef.MotisStatus>()
         {
-            new MotisDataDef.Status()
+            new MotisDataDef.MotisStatus()
             {
                 D = r.GetString(r.GetOrdinal("d")),
                 CH = r.GetInt32(r.GetOrdinal("CH")),
@@ -317,7 +310,7 @@ public class Status(Motis Motis, IConfiguration Configuration, ILogger Logger)
         };
     }
 
-
-    public Status(Motis Motis, IConfiguration Configuration, ILogger<Status> Logger)
-        : this(Motis, Configuration, (ILogger)Logger) { }
+    // DI Constructor
+    public MotisStatus(Motis Motis, IConfiguration Configuration, ILogger<MotisStatus> Logger, GhalaDataPool.Ghala ghalaOption)
+        : this(Motis, (ILogger)Logger, ghalaOption) { }
 }

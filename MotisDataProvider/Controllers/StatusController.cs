@@ -1,4 +1,5 @@
 ﻿using GhalaDataDef;
+using GhalaDataPool;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.HttpSys;
 using MotisDataAccess;
@@ -12,7 +13,7 @@ namespace MotisWebApi1.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
-public class StatusController(XAuth XAuth, MotisDataAccess.Motis Motis, IConfiguration Configuration, ILogger<StatusController> Logger)
+public class StatusController(XAuth XAuth, MotisDataAccess.Motis Motis, IConfiguration Configuration, ILogger<StatusController> Logger, GhalaDataPool.Ghala ghalaOption)
     : ControllerBase
 {
     private string Token
@@ -20,41 +21,5 @@ public class StatusController(XAuth XAuth, MotisDataAccess.Motis Motis, IConfigu
         get => Configuration["MotisDataProvider:Token"] ?? throw new ArgumentNullException("MotisDataProvider:Token");
     }
 
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountReleasedERPOrders(DateTime Date)
-         => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) =>
-                MotisDataAccess.Status.CountReleasedERPOrders(Motis, Date)));
-
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountERPOrdersInProgress()
-         => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) => 
-                MotisDataAccess.Status.CountERPOrdersInProgress(Motis)));
-
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountPickOrdersDone(DateTime Date)
-        => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) =>
-                MotisDataAccess.Status.CountPickOrdersDone(Motis, Date)));
-        
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountERPOrdersDone(DateTime Date)
-        => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) =>
-                MotisDataAccess.Status.CountERPOrdersDone(Motis, Date)));
-
-
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountNewERPOrders(DateTime Date)
-        => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) =>
-                MotisDataAccess.Status.CountNewERPOrders(Motis, Date)));
-
-
-    [HttpGet()]
-    public Shell<MotisDataDef.Status> CountPickOrdersInProgress()
-        => Logger.LogShell(Shell.SuccessHandler(
-            XAuth.ValidateToken(Token, "read status"), (s) =>
-                MotisDataAccess.Status.CountPickOrdersInProgress(Motis)));
+    
 }

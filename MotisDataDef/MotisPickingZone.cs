@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MotisDataDef
 {
-    public class PickingZone
+    public class MotisPickingZone
     {
         public int Id { get; set; } = 0;
     }

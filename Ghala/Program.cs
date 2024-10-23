@@ -5,6 +5,7 @@ using Nox;
 using Nox.WebApi;
 using Radzen;
 using XAuthPool;
+using XAuthPool.Security;
 
 namespace Ghala
 {
@@ -14,24 +15,25 @@ namespace Ghala
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddProvider(new XLogProvider(builder.Configuration));
+            builder.Services.AddXLog();
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
             builder.Services.AddRadzenComponents();
 
-            builder.Logging.ClearProviders();
-            builder.Logging.AddProvider(new XLogProvider(builder.Configuration));
-            builder.Services.AddXLog();
 
             
             builder.Services.AddSingleton<XAuth>();
             builder.Services.AddSingleton<AuthTokenManager>();
             builder.Services.AddSingleton<UserProfileManager>();
 
-            builder.Services.AddScoped<GhalaOption>();
+            builder.Services.AddScoped<GhalaDataPool.Ghala>();
             
-            builder.Services.AddScoped<Status>();
+            builder.Services.AddScoped<MotisDataPool.Motis>();
             builder.Services.AddScoped<TrackingInfo>();
 
             var app = builder.Build();
@@ -41,6 +43,7 @@ namespace Ghala
             var timer1 = XAuth.GetTokenRenewTimer(app.Services.GetRequiredService<XAuth>(),
                 Configuration["GhalaDataProvider:Token"] ?? throw new ArgumentNullException("GhalaDataProvider:Token"),
                 Configuration["GhalaDataProvider:Secret"] ?? throw new ArgumentNullException("GhalaDataProvider:Secret"));
+            
             var timer2 = XAuth.GetTokenRenewTimer(app.Services.GetRequiredService<XAuth>(),
                 Configuration["MotisDataProvider:Token"] ?? throw new ArgumentNullException("MotisDataProvider:Token"),
                 Configuration["MotisDataProvider:Secret"] ?? throw new ArgumentNullException("MotisProvider:Secret"));

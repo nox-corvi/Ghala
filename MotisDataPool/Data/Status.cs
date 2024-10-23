@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Libs.Web;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Nox;
@@ -15,49 +16,48 @@ using System.Threading.Tasks;
 
 namespace MotisDataPool.Data;
 
-public class Status(IConfiguration Configuration, ILogger Logger)
-    : RestClient(Configuration["MotisDataProvider:URL"] ??
-        throw new ArgumentNullException("MotisDataProvider:URL"), Logger)
-{
-    private const string DTF = "yyyy-MM-dd";
 
-    private KeyValue Token
-    {
-        get => new KeyValue("Token",
-            Configuration["MotisDataProvider:Token"])
-                ?? throw new ArgumentNullException("MotisDataProvider:Token");
-    }
+//public class Motis(IConfiguration Configuration, ILogger Logger)
+//    : RestApi(Configuration, Logger)
+//{
+//    public override string ConfigKey => "MotisDataProvider";
 
-    public Task<Shell<MotisDataDef.Status>> CountReleasedERPOrdersAsync(DateTime Date)
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountReleasedERPOrders?Date={Date.ToString(DTF)}", Token);
-    public Shell<MotisDataDef.Status> CountReleasedERPOrders(DateTime Date)
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountReleasedERPOrders?Date={Date.ToString(DTF)}", Token);
+//    #region Status
 
-    public Task<Shell<MotisDataDef.Status>> CountERPOrdersInProgressAsync()
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountERPOrdersInProgress", Token);
-    public Shell<MotisDataDef.Status> CountERPOrdersInProgress()
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountERPOrdersInProgress", Token);
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountReleasedERPOrdersAsync(DateTime Date)
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountReleasedERPOrders?Date={Date.ToString(DTF)}", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountReleasedERPOrders(DateTime Date)
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountReleasedERPOrders?Date={Date.ToString(DTF)}", Token);
 
-    public Task<Shell<MotisDataDef.Status>> CountPickOrdersDoneAsync(DateTime Date)
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountPickOrdersDone?Date={Date.ToString(DTF)}", Token);
-    public Shell<MotisDataDef.Status> CountPickOrdersDone(DateTime Date)
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountPickOrdersDone?Date={Date.ToString(DTF)}", Token);
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountERPOrdersInProgressAsync()
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountERPOrdersInProgress", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountERPOrdersInProgress()
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountERPOrdersInProgress", Token);
 
-    public Task<Shell<MotisDataDef.Status>> CountERPOrdersDoneAsync(DateTime Date)
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountERPOrdersDone?Date={Date.ToString(DTF)}", Token);
-    public Shell<MotisDataDef.Status> CountERPOrdersDone(DateTime Date)
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountERPOrdersDone?Date={Date.ToString(DTF)}", Token);
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountPickOrdersDoneAsync(DateTime Date)
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountPickOrdersDone?Date={Date.ToString(DTF)}", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountPickOrdersDone(DateTime Date)
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountPickOrdersDone?Date={Date.ToString(DTF)}", Token);
 
-    public Task<Shell<MotisDataDef.Status>> CountNewERPOrdersAsync(DateTime Date)
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountNewERPOrders?Date={Date.ToString(DTF)}", Token);
-    public Shell<MotisDataDef.Status> CountNewERPOrders(DateTime Date)
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountNewERPOrders?Date={Date.ToString(DTF)}", Token);
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountERPOrdersDoneAsync(DateTime Date)
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountERPOrdersDone?Date={Date.ToString(DTF)}", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountERPOrdersDone(DateTime Date)
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountERPOrdersDone?Date={Date.ToString(DTF)}", Token);
 
-    public Task<Shell<MotisDataDef.Status>> CountPickOrdersInProgressAsync()
-        => RestGetAsync<Shell<MotisDataDef.Status>>($"Status/CountPickOrdersInProgress", Token);
-    public Shell<MotisDataDef.Status> CountPickOrdersInProgress()
-        => RestGet<Shell<MotisDataDef.Status>>($"Status/CountPickOrdersInProgress", Token);
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountNewERPOrdersAsync(DateTime Date)
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountNewERPOrders?Date={Date.ToString(DTF)}", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountNewERPOrders(DateTime Date)
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountNewERPOrders?Date={Date.ToString(DTF)}", Token);
 
-    public Status(IConfiguration Configuration, ILogger<Status> Logger)
-        : this(Configuration, (ILogger)Logger) { }
-}
+//    public Task<Shell<MotisDataDef.MotisStatus>> CountPickOrdersInProgressAsync()
+//        => RestGetAsync<Shell<MotisDataDef.MotisStatus>>($"Status/CountPickOrdersInProgress", Token);
+//    public Shell<MotisDataDef.MotisStatus> CountPickOrdersInProgress()
+//        => RestGet<Shell<MotisDataDef.MotisStatus>>($"Status/CountPickOrdersInProgress", Token);
+
+//    #endregion
+
+
+//    // DI-Constructor
+//    public Motis(IConfiguration Configuration, ILogger<Motis> Logger)
+//        : this(Configuration, (ILogger)Logger) { }
+//}

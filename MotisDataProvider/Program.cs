@@ -23,8 +23,8 @@ namespace MotisDataProvider
             builder.Services.AddXLog();
 
             // add services
-            builder.Services.AddSingleton<ILoggerFactory>(Global.LoggerFactory);
             builder.Services.AddSingleton<XAuth>();
+            builder.Services.AddSingleton<GhalaDataPool.Ghala>();
             builder.Services.AddSingleton<MotisDataAccess.Motis>();
 
             var app = builder.Build();
